@@ -1,5 +1,6 @@
 // #include <gtk/gtk.h>
 #include "../include/fighter.h"
+#include "../include/utilities/lowlevel.h"
 
 
 
@@ -27,6 +28,8 @@ int
 main (int    argc,
       char **argv)
 {
+    gobbo_ll_validate();
+
     GtkApplication *app;
     int status;
 
