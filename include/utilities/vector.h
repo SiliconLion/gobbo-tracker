@@ -8,6 +8,7 @@
 //unless it is intentionall.
 // #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
+#include <stdbool.h>
 
 #include "lowlevel.h"
 
@@ -36,8 +37,8 @@ typedef struct {
 //returned GobboVector. 
 //sets `*alloc_error = 0` on succes.
 GobboVector gobbo_vector_new(size_t stride, size_t inital_capacity, int* alloc_error) {
+    if (inital_capacity == 0) {inital_capacity = 1;}
     GobboVector v = {stride, 0, inital_capacity, NULL};
-    if (inital_capacity = 0) {inital_capacity = 1;}
 
     bool overflowed;
     size_t num_bytes = gobbo_ll_umul_size_checked(stride, inital_capacity, &overflowed);
@@ -50,7 +51,7 @@ GobboVector gobbo_vector_new(size_t stride, size_t inital_capacity, int* alloc_e
     v.data = malloc(num_bytes);
     if (v.data == NULL && alloc_error == NULL) {
         exit(EXIT_FAILURE);
-    } else if (v.data = NULL) {
+    } else if (v.data == NULL) {
         v.data = NULL;
         *alloc_error = -1;
     }
@@ -118,8 +119,8 @@ void gobbo_vector_get(GobboVector* v, void* dest, size_t index, int* bounds_erro
         return;
     } else {
         //see "proof" in gobbo_vector_push for validity, with the stipulation that index < v->count
-        uintptr_t elem_address = (uintptr_t)v->data + (uintptr_t)( index * v->stride);
-        memcpy((void*)dest, (void*)elem_address, v->stride);
+        void* elem_address = v->data + ( index * v->stride);
+        memcpy(dest, elem_address, v->stride);
         //return
     }
     //unreachable
@@ -132,26 +133,28 @@ void gobbo_vector_set(GobboVector* v, void* element, size_t index, int* bounds_e
         return;
     } else {
         //see "proof" in gobbo_vector_push for validity, with the stipulation that index < v->count
-        uintptr_t dest_address = (uintptr_t)v->data + (uintptr_t)( index * v->stride);
-        memcpy((void*)dest_address, element, v->stride);
+        void* dest_address = v->data + ( index * v->stride);
+        memcpy(dest_address, element, v->stride);
     }
 }
 
 //copies the value pointed to by `element` to the end of the GobboVector. 
 //assumes the size of the pointed element is `v.stride`
 //if the vector is full, `gobbo_vector_resize` is called with a `new_capacity` of 0 (doubling the size).
-//if that fails, `*alloc_error` will be set to -1.
-//on success, `*alloc_error ` will be set to 0.
-//If `alloc_error` is NULL, then will call exit if it can't reallocate
-void gobbo_vector_push(GobboVector* v, void* element, int* alloc_error) {
+//if that fails, `*error` will be set to -1.
+//on success, `*error ` will be set to 0.
+//If `error` is NULL, then will call exit if it can't reallocate.
+//v->count will not be updated unless element succesfully copied into v.
+void gobbo_vector_push(GobboVector* v, void* element, int* error) {
     if (gobbo_vector_is_full(v)) {
-        gobbo_vector_resize(v, 0, alloc_error);
-        if (alloc_error < 0) {
+        gobbo_vector_resize(v, 0, error);
+        if (error < 0) {
             return;
         }
     }
 
-    v->count += 1;
+
+    size_t count = v->count + 1;
 
     //starting at v->data, then moving by v->stride bytes, v->count -1 times
     
@@ -159,15 +162,20 @@ void gobbo_vector_push(GobboVector* v, void* element, int* alloc_error) {
 
     //1)data is a valid pointer, and has a capacity of v->capacity * v->stride allocated. 
     //2)The conditional calls to gobbo_vector_is_full and gobbo_vector_resize(v, 0, ...) ensure that
-    //v->count <= v->capacity.
+    //count <= v->capacity.
     //3) 1) => data + ((v->capacity - 1) * v->stride) is a valid uintptr_t. This implies that
-    //v->data + ( (v->count -1) * v->stride) is a valid uintptr_t. Thus it will not overflow
+    //v->data + ( (count -1) * v->stride) is a valid uintptr_t. Thus it will not overflow
     //and is a valid pointer. 
-    uintptr_t dest = (uintptr_t)v->data + (uintptr_t)( (v->count - 1) * v->stride) ;
+    void* dest = v->data + ( (count - 1) * v->stride) ;
     //considering using memcpy_s. However I have seen some debate about the wiseness about things like
     //rsize_t, and have not taken the time to look into constraint handler functions. So for now
-    //going with good old memcpy
-    memcpy((void*)dest, element, v->stride);
+    //going with good old memcpy. However as I would like to detect if the copy doesn't work, I will
+    //likely switch to memcpy_s in the future.
+    memcpy(dest, element, v->stride);
+
+    v->count += 1;
+    *error = 0;
+    return;
 }
 
 void gobbo_vector_free(GobboVector* v) {
@@ -178,4 +186,52 @@ void gobbo_vector_free(GobboVector* v) {
     v->capacity = 0;
     v->stride = 0;
     v->count = 0;
+}
+
+//a very temporary function just to test if vector is kinda working
+void gobbo_vector_validate() {
+    int error;
+    size_t capacity = 0;
+    GobboVector v = gobbo_vector_new(sizeof(size_t), capacity, &error);
+    if(error < 0) {
+        printf("error code for vector_new is %i\n", error);
+        return;
+    }
+
+    for(size_t i = 0; i < 300000000; i++) {
+        size_t k = i;
+        gobbo_vector_push(&v, &k, &error);
+        if(error < 0) {
+            printf("error code for vector_push is %i when i is %zu\n", error, i);
+            return;
+        }
+    }
+
+    for(size_t i = 0; i < 300000000; i++) {
+        size_t k = SIZE_MAX - 5;
+        gobbo_vector_set(&v, &k, i, &error);
+        if(error < 0) {
+            printf("error code for vector_set is %i when i is %zu\n", error, i);
+            return;
+        }
+    }
+
+    for(size_t i = 0; i < 300000000; i++) {
+        size_t element;
+        gobbo_vector_get(&v, &element, i, &error);
+        if(error < 0) {
+            printf("error code for vector_set is %i when i is %zu\n", error, i);
+            return;
+        }
+
+        if(element != SIZE_MAX - 5) {
+            printf("something went wrong. element #%zu is %zu, which"
+                   "is not SIZE_MAX - 5\n",
+                   i, element);
+            return;
+        }
+    }
+    gobbo_vector_free(&v);
+
+    printf("everything seems to be okay in vector...\n");
 }

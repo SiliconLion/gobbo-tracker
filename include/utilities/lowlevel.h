@@ -31,7 +31,7 @@ void gobbo_ll_validate() {
 
 
 //probably wrong. will unit test later
-inline unsigned long long int gobbo_ll_umulll_checked(
+unsigned long long int gobbo_ll_umulll_checked(
         unsigned long long int a,
         unsigned long long int b,
         bool* overflowed
@@ -65,7 +65,7 @@ inline unsigned long long int gobbo_ll_umulll_checked(
 //it might be interesting to try and find a way to use the preprocessor to skip the extra code.
 //but the compiler might be smart enough to compile it out anyways, and I doubt this will be a bottle-neck.
 //if is however, and it's not compiled out, an unnecessary branch is annoying
-inline size_t gobbo_ll_umul_size_checked(size_t a, size_t b, bool* overflowed) {
+size_t gobbo_ll_umul_size_checked(size_t a, size_t b, bool* overflowed) {
     
     bool longlongoverflow;
     unsigned long long int result = gobbo_ll_umulll_checked(
@@ -94,7 +94,7 @@ inline size_t gobbo_ll_umul_size_checked(size_t a, size_t b, bool* overflowed) {
 
 //probably wrong. will unit test later
 //checked addition for unsigned long long int's 
-inline unsigned long long int gobbo_ll_uaddll_checked(
+unsigned long long int gobbo_ll_uaddll_checked(
         unsigned long long int a,
         unsigned long long int b,
         bool* overflowed
@@ -119,7 +119,7 @@ inline unsigned long long int gobbo_ll_uaddll_checked(
     #endif
 }
 
-inline size_t gobbo_ll_add_size_checked(size_t a, size_t b, bool* overflowed) {
+size_t gobbo_ll_add_size_checked(size_t a, size_t b, bool* overflowed) {
     //do operation using "longest" type
     bool longlongoverflowed;
     unsigned long long int result = gobbo_ll_uaddll_checked(

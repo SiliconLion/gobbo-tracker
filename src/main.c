@@ -1,6 +1,6 @@
 // #include <gtk/gtk.h>
 #include "../include/fighter.h"
-#include "../include/utilities/lowlevel.h"
+#include "../include/utilities/vector.h"
 
 
 
@@ -29,6 +29,7 @@ main (int    argc,
       char **argv)
 {
     gobbo_ll_validate();
+    gobbo_vector_validate();
 
     GtkApplication *app;
     int status;
