@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 //this indicates that we want bounds checking where applicable. Putting it here to have
-//and as a reminder, but left as a comment because it is not really appropreate to define this
+//and as a reminder, but left as a comment because it is not really appropriate to define this
 //macro in this file as such as it could cause include order dependant behavior and I don't want that
 //unless it is intentionall.
 // #define __STDC_WANT_LIB_EXT1__ 1

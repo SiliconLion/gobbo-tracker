@@ -3,13 +3,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../include/utilities/vector.h"
+
 // my macro definitions
 
 //checks whether `object` is a given type of GObject
 //`library` and `type` should both be uppercase. 
 //`library` is the library library the type is defined in. Eg,
 //"GOBJECT, GTK, GOBBO". 
-//`type` is the type that we are querrying if `object` is.
+//`type` is the type that we are querying if `object` is.
 #define PRINT_IS_TYPE(library, type, object) \
     if( library ## _IS_ ## type  (object) ) {\
         printf(#object " is " #library "_" #type "\n"); \
@@ -25,6 +27,9 @@
 struct _GobboFighter {
     GtkBox parent_instance;
     char* name;
+    // a vector that holds names of the fighters stats. eg, "wisdom,"
+    //This will be upgraded later to hold more complex types.
+    GobboVector stat_names; 
 };
 
 //I don't think I need to declare a class since GobboFighter type is declared
@@ -43,28 +48,59 @@ static void gobbo_fighter_class_init(GobboFighterClass* klass) {
 
 //static function implimentations below
 
-GobboFighter* gobbo_fighter_new( const char* name) {
+//valid to pass NULL to `stats_names` as long as `stats_len` is 0.
+GobboFighter* gobbo_fighter_new(const char* name, char const *const * stats_names, int stats_len) {
     GobboFighter* fighter = g_object_new(GOBBO_TYPE_FIGHTER, NULL);
 
     //copy name into fighter->name
     size_t len = strlen(name);
     fighter->name = malloc(sizeof(char) * (len + 1));
+    if(fighter == NULL) {printf("could not allocate name in fighter_new\n"); exit(EXIT_FAILURE);}
     strcpy(fighter->name, name);
-    
+
+    fighter->stat_names = gobbo_vector_new(sizeof(char*), stats_len, NULL);
+
+    for(int i = 0; i < stats_len; i++) {
+        char const * const stat = stats_names[i];
+        size_t stat_len = strlen(stat);
+        char* copy_dest = malloc(sizeof(char) * (stat_len + 1));
+        if (copy_dest == NULL) {
+            printf("couldn't allocate when trying to copy a stat");
+            exit(EXIT_FAILURE);
+        }
+        gobbo_vector_push( &(fighter->stat_names), copy_dest, NULL);
+
+    }
+
     //GobboFighter is a GtkBox, which impliments orientable.
     gtk_orientable_set_orientation(GTK_ORIENTABLE(fighter), GTK_ORIENTATION_VERTICAL);
     gtk_container_add(GTK_CONTAINER(fighter), gtk_label_new(fighter->name));
+    gtk_container_add(GTK_CONTAINER(fighter), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
+
+    for(int i = 0; i < stats_len; i++) {
+        GtkWidget* stat_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+        const char* stat_name; 
+        gobbo_vector_get(&(fighter->stat_names), &stats_names, i, NULL);
+        gtk_container_add(GTK_CONTAINER(stat_box), gtk_label_new(stat_name));
+
+        gtk_container_add(GTK_CONTAINER(fighter), stat_box);
+    }
 
     return fighter;
 }
 
+//very incomplete currently. Will be updated as needed or when a more final design
+//is settled on.
 void gobbo_fighter_print(GobboFighter* fighter) {
     printf("GobboFighter {\n\t%s\n}\n", fighter->name);
 }
 
 
 void gobbo_validate_fighter() {
-    GobboFighter* fighter = gobbo_fighter_new("Goblin");
+    char** stats = malloc(sizeof(char*) *5);
+    stats[0] = "Intelligence"; stats[1] = "Wisdom";
+    stats[2] = "Charisma"; stats[3] = "Dexterity"; stats[4] = "Strength";
+    GobboFighter* fighter = gobbo_fighter_new("Goblin", (const char *const *)stats, 5);
 
     if (G_TYPE_CHECK_INSTANCE(fighter) ) {
         printf("fighter is valid instance\n");
