@@ -15,7 +15,7 @@ G_DECLARE_FINAL_TYPE(GobboFighter, gobbo_fighter, GOBBO, FIGHTER, GtkBox)
 
 
 //takes a name for the fighter, which will be copied.
-GobboFighter* gobbo_fighter_new(const char* name, char const *const * stats_names, int stats_len);
+GobboFighter* gobbo_fighter_new(const char* name, char **stats_names, int stats_len);
 //prints a GobboFighter formated to look nice
 void gobbo_fighter_print(GobboFighter* fighter);
 //debug function. 

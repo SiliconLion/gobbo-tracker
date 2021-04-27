@@ -19,7 +19,7 @@ activate (GtkApplication* app,
     char** stats = malloc(sizeof(char*) *5);
     stats[0] = "Intelligence"; stats[1] = "Wisdom";
     stats[2] = "Charisma"; stats[3] = "Dexterity"; stats[4] = "Strength";
-    GobboFighter* fighter = gobbo_fighter_new("Goblin", (const char *const *)stats, 5);
+    GobboFighter* fighter = gobbo_fighter_new("Goblin", stats, 5);
     
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(fighter));
 
@@ -33,7 +33,7 @@ main (int    argc,
       char **argv)
 {
     gobbo_ll_validate();
-    gobbo_vector_validate();
+    // gobbo_vector_validate();
 
     GtkApplication *app;
     int status;

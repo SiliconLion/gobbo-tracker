@@ -49,7 +49,7 @@ static void gobbo_fighter_class_init(GobboFighterClass* klass) {
 //static function implimentations below
 
 //valid to pass NULL to `stats_names` as long as `stats_len` is 0.
-GobboFighter* gobbo_fighter_new(const char* name, char const *const * stats_names, int stats_len) {
+GobboFighter* gobbo_fighter_new(const char* name, char** stats_names, int stats_len) {
     GobboFighter* fighter = g_object_new(GOBBO_TYPE_FIGHTER, NULL);
 
     //copy name into fighter->name
@@ -61,15 +61,15 @@ GobboFighter* gobbo_fighter_new(const char* name, char const *const * stats_name
     fighter->stat_names = gobbo_vector_new(sizeof(char*), stats_len, NULL);
 
     for(int i = 0; i < stats_len; i++) {
-        char const * const stat = stats_names[i];
+        char* stat = stats_names[i];
         size_t stat_len = strlen(stat);
         char* copy_dest = malloc(sizeof(char) * (stat_len + 1));
         if (copy_dest == NULL) {
             printf("couldn't allocate when trying to copy a stat");
             exit(EXIT_FAILURE);
         }
-        gobbo_vector_push( &(fighter->stat_names), copy_dest, NULL);
-
+        strcpy(copy_dest, stat);
+        gobbo_vector_push( &(fighter->stat_names), &copy_dest, NULL);
     }
 
     //GobboFighter is a GtkBox, which impliments orientable.
@@ -79,9 +79,9 @@ GobboFighter* gobbo_fighter_new(const char* name, char const *const * stats_name
 
     for(int i = 0; i < stats_len; i++) {
         GtkWidget* stat_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-        const char* stat_name; 
-        gobbo_vector_get(&(fighter->stat_names), &stats_names, i, NULL);
-        gtk_container_add(GTK_CONTAINER(stat_box), gtk_label_new(stat_name));
+        char* stat;
+        gobbo_vector_get(&(fighter->stat_names), &stat, i, NULL);
+        gtk_container_add(GTK_CONTAINER(stat_box), gtk_label_new(stat));
 
         gtk_container_add(GTK_CONTAINER(fighter), stat_box);
     }
@@ -100,7 +100,7 @@ void gobbo_validate_fighter() {
     char** stats = malloc(sizeof(char*) *5);
     stats[0] = "Intelligence"; stats[1] = "Wisdom";
     stats[2] = "Charisma"; stats[3] = "Dexterity"; stats[4] = "Strength";
-    GobboFighter* fighter = gobbo_fighter_new("Goblin", (const char *const *)stats, 5);
+    GobboFighter* fighter = gobbo_fighter_new("Goblin", stats, 5);
 
     if (G_TYPE_CHECK_INSTANCE(fighter) ) {
         printf("fighter is valid instance\n");
