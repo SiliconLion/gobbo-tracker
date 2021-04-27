@@ -81,7 +81,15 @@ GobboFighter* gobbo_fighter_new(const char* name, char** stats_names, int stats_
         GtkWidget* stat_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
         char* stat;
         gobbo_vector_get(&(fighter->stat_names), &stat, i, NULL);
+
         gtk_container_add(GTK_CONTAINER(stat_box), gtk_label_new(stat));
+        gtk_container_add(
+            GTK_CONTAINER(stat_box), 
+            gtk_spin_button_new(
+                gtk_adjustment_new(0, 0, INT_MAX, 1.0, 0, 0),
+                0, 0
+            )
+        );
 
         gtk_container_add(GTK_CONTAINER(fighter), stat_box);
     }
