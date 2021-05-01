@@ -12,7 +12,7 @@
 
 //need to add an error type, but debating on the best way to do that. for now will
 //punt and just annotate functions with what the values returned as errors represent. 
-//Error values will always be negative though
+//Error values will always be negative though. 
 
 typedef struct {
     size_t stride; //how many bytes a given element in the GobboVector is
@@ -60,9 +60,26 @@ void gobbo_vector_set(GobboVector* v, void* element, size_t index, int* bounds_e
 //if that fails, `*error` will be set to -1.
 //on success, `*error ` will be set to 0.
 //If `error` is NULL, then will call exit if it can't reallocate.
-//v->count will not be updated unless element succesfully copied into v.
+//v->count will not be updated unless element successfully copied into v.
 void gobbo_vector_push(GobboVector* v, void* element, int* error);
 
+//removes the element at `index` from the GobboVector, and shifts all elements
+//after over to fill in the gap. `*error` will be set to -1 if the index is out of bounds.
+//`exit(EXIT_FAILURE)` on error if `error == NULL`.
+//In the case of the element type of the GobboVector being a pointer type, to prevent
+//memory leaks, it may be necessary to call free on the element, which this function does
+//not do. If this is needed, use `gobbo_vector_get_and_remove()`.
+void gobbo_vector_remove(GobboVector* v, size_t index, int* error);
+
+//copies the element at `index` into `dest`. DOES NOT ALLOCATE so make sure `dest` is 
+//appropriately allocated. Then removes the element from the GobboVector following the 
+//semantics of `gobbo_vector_remove()`. If the index is out of bounds, `*error` will be 
+//set to -1. `exit(EXIT_FAILURE)` on error if `error == NULL`.
+//This function is particularly useful if the element type is a pointer that needs to 
+//be freed. To do this, call `gobbo_vector_get_and_remove()` then call `free(*dest)`. 
+void gobbo_vector_get_and_remove(GobboVector* v, void* dest, size_t index, int* error);
+
+//Frees the `v->data` pointer, and zero's out all the fields of `v`. 
 void gobbo_vector_free(GobboVector* v);
 
 //a very temporary function just to test if vector is kinda working

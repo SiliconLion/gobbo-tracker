@@ -33,7 +33,7 @@ main (int    argc,
       char **argv)
 {
     gobbo_ll_validate();
-    // gobbo_vector_validate();
+    gobbo_vector_validate();
 
     GtkApplication *app;
     int status;
