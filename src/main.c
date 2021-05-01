@@ -16,10 +16,17 @@ activate (GtkApplication* app,
 
     gobbo_validate_fighter();
 
-    char** stats = malloc(sizeof(char*) *5);
-    stats[0] = "Intelligence"; stats[1] = "Wisdom";
-    stats[2] = "Charisma"; stats[3] = "Dexterity"; stats[4] = "Strength";
-    GobboFighter* fighter = gobbo_fighter_new("Goblin", stats, 5);
+    GobboFighter* fighter = gobbo_fighter_new("Goblin");
+    gobbo_fighter_add_stat(fighter, "Intelligence");
+    gobbo_fighter_add_stat(fighter, "Wisdom");
+    gobbo_fighter_add_stat(fighter, "Charisma");
+    gobbo_fighter_add_stat(fighter, "Dexterity");
+    gobbo_fighter_add_stat(fighter, "Strength");
+    gobbo_fighter_reformat(fighter);
+    //just here to prove that repeated calls to `gobbo_fighter_reformat`
+    //are handled correctly. remove next time this file is modified
+    gobbo_fighter_reformat(fighter);
+    gobbo_fighter_reformat(fighter);
     
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(fighter));
 
@@ -33,7 +40,7 @@ main (int    argc,
       char **argv)
 {
     gobbo_ll_validate();
-    gobbo_vector_validate();
+    // gobbo_vector_validate();
 
     GtkApplication *app;
     int status;

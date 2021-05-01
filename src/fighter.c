@@ -48,8 +48,16 @@ static void gobbo_fighter_class_init(GobboFighterClass* klass) {
 
 //static function implimentations below
 
-//valid to pass NULL to `stats_names` as long as `stats_len` is 0.
-GobboFighter* gobbo_fighter_new(const char* name, char** stats_names, int stats_len) {
+//functions internal to file
+
+//empties the fighter widget of any children
+void m_gobbo_fighter_widget_clear_children(GobboFighter* f) {
+    gtk_container_foreach(GTK_CONTAINER(f), (GtkCallback)gtk_widget_destroy, NULL);
+}
+
+//functions declared in the header
+
+GobboFighter* gobbo_fighter_new(const char* name) {
     GobboFighter* fighter = g_object_new(GOBBO_TYPE_FIGHTER, NULL);
 
     //copy name into fighter->name
@@ -58,29 +66,40 @@ GobboFighter* gobbo_fighter_new(const char* name, char** stats_names, int stats_
     if(fighter == NULL) {printf("could not allocate name in fighter_new\n"); exit(EXIT_FAILURE);}
     strcpy(fighter->name, name);
 
-    fighter->stat_names = gobbo_vector_new(sizeof(char*), stats_len, NULL);
+    fighter->stat_names = gobbo_vector_new(sizeof(char*), 0, NULL);
 
-    for(int i = 0; i < stats_len; i++) {
-        char* stat = stats_names[i];
-        size_t stat_len = strlen(stat);
-        char* copy_dest = malloc(sizeof(char) * (stat_len + 1));
-        if (copy_dest == NULL) {
-            printf("couldn't allocate when trying to copy a stat");
-            exit(EXIT_FAILURE);
-        }
-        strcpy(copy_dest, stat);
-        gobbo_vector_push( &(fighter->stat_names), &copy_dest, NULL);
+    return fighter;
+}
+
+void gobbo_fighter_add_stat(GobboFighter* f, const char* stat) {
+    size_t len = strlen(stat);
+    char* stat_cpy = malloc(sizeof(char) * (len + 1));
+    if(!stat_cpy){
+        printf("could not allocate stat in gobo_fighter_add_stat");
+        exit(EXIT_FAILURE);
     }
 
-    //GobboFighter is a GtkBox, which impliments orientable.
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(fighter), GTK_ORIENTATION_VERTICAL);
-    gtk_container_add(GTK_CONTAINER(fighter), gtk_label_new(fighter->name));
-    gtk_container_add(GTK_CONTAINER(fighter), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
+    strcpy(stat_cpy, stat);
 
+    gobbo_vector_push(&(f->stat_names), &stat_cpy, NULL);
+}
+
+void gobbo_fighter_reformat(GobboFighter* f) {
+
+    //GobboFighter is a GtkBox, which impliments orientable.
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(f), GTK_ORIENTATION_VERTICAL);
+    gtk_container_add(GTK_CONTAINER(f), gtk_label_new(f->name));
+    gtk_container_add(GTK_CONTAINER(f), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
+
+
+    m_gobbo_fighter_widget_clear_children(f);
+
+    size_t stats_len = f->stat_names.count;
     for(int i = 0; i < stats_len; i++) {
+
         GtkWidget* stat_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
         char* stat;
-        gobbo_vector_get(&(fighter->stat_names), &stat, i, NULL);
+        gobbo_vector_get(&(f->stat_names), &stat, i, NULL);
 
         gtk_container_add(GTK_CONTAINER(stat_box), gtk_label_new(stat));
         gtk_container_add(
@@ -90,11 +109,8 @@ GobboFighter* gobbo_fighter_new(const char* name, char** stats_names, int stats_
                 0, 0
             )
         );
-
-        gtk_container_add(GTK_CONTAINER(fighter), stat_box);
+        gtk_container_add(GTK_CONTAINER(f), stat_box);
     }
-
-    return fighter;
 }
 
 //very incomplete currently. Will be updated as needed or when a more final design
@@ -105,10 +121,13 @@ void gobbo_fighter_print(GobboFighter* fighter) {
 
 
 void gobbo_validate_fighter() {
-    char** stats = malloc(sizeof(char*) *5);
-    stats[0] = "Intelligence"; stats[1] = "Wisdom";
-    stats[2] = "Charisma"; stats[3] = "Dexterity"; stats[4] = "Strength";
-    GobboFighter* fighter = gobbo_fighter_new("Goblin", stats, 5);
+    GobboFighter* fighter = gobbo_fighter_new("Goblin");
+    gobbo_fighter_add_stat(fighter, "Intelligence");
+    gobbo_fighter_add_stat(fighter, "Wisdom");
+    gobbo_fighter_add_stat(fighter, "Charisma");
+    gobbo_fighter_add_stat(fighter, "Dexterity");
+    gobbo_fighter_add_stat(fighter, "Strength");
+    gobbo_fighter_reformat(fighter);
 
     if (G_TYPE_CHECK_INSTANCE(fighter) ) {
         printf("fighter is valid instance\n");
