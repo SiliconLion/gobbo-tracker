@@ -1,6 +1,7 @@
 // #include <gtk/gtk.h>
 #include "../include/fighter.h"
-
+#include "../include/utilities/vector.h"
+#include "../include/utilities/lowlevel.h"
 
 
 static void
@@ -16,6 +17,17 @@ activate (GtkApplication* app,
     gobbo_validate_fighter();
 
     GobboFighter* fighter = gobbo_fighter_new("Goblin");
+    gobbo_fighter_add_stat(fighter, "Intelligence");
+    gobbo_fighter_add_stat(fighter, "Wisdom");
+    gobbo_fighter_add_stat(fighter, "Charisma");
+    gobbo_fighter_add_stat(fighter, "Dexterity");
+    gobbo_fighter_add_stat(fighter, "Strength");
+    gobbo_fighter_reformat(fighter);
+    //just here to prove that repeated calls to `gobbo_fighter_reformat`
+    //are handled correctly. remove next time this file is modified
+    gobbo_fighter_reformat(fighter);
+    gobbo_fighter_reformat(fighter);
+    
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(fighter));
 
     gtk_widget_show_all (window);
@@ -27,6 +39,9 @@ int
 main (int    argc,
       char **argv)
 {
+    gobbo_ll_validate();
+    // gobbo_vector_validate();
+
     GtkApplication *app;
     int status;
 
