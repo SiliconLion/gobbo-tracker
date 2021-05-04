@@ -85,14 +85,12 @@ void gobbo_fighter_add_stat(GobboFighter* f, const char* stat) {
 }
 
 void gobbo_fighter_reformat(GobboFighter* f) {
+    m_gobbo_fighter_widget_clear_children(f);
 
-    //GobboFighter is a GtkBox, which impliments orientable.
+    //GobboFighter is a GtkBox, which implements orientable.
     gtk_orientable_set_orientation(GTK_ORIENTABLE(f), GTK_ORIENTATION_VERTICAL);
     gtk_container_add(GTK_CONTAINER(f), gtk_label_new(f->name));
     gtk_container_add(GTK_CONTAINER(f), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
-
-
-    m_gobbo_fighter_widget_clear_children(f);
 
     size_t stats_len = f->stat_names.count;
     for(int i = 0; i < stats_len; i++) {
