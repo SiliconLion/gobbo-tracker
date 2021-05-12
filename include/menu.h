@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gtk/gtk.h>
-#include "fighter.h"
+// #include "fighter.h"
 
 typedef struct {
     //currently no members

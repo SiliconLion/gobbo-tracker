@@ -198,6 +198,17 @@ void gobbo_vector_get_and_remove(GobboVector* v, void* dest, size_t index, int* 
     return;
 }
 
+void* gobbo_vector_ptr_to_element(GobboVector* v, size_t index, int* error) {
+    if(index >= v->count) {
+        if(!error) {exit(EXIT_FAILURE);}
+        *error = -1;
+        return NULL;
+    }
+
+    //as long as the GobboVector and the index are valid, this arithmetic will not overflow
+    return (void*) v->data + (v->stride * index) ;
+}
+
 void gobbo_vector_free(GobboVector* v) {
     free(v->data);
 
