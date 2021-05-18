@@ -79,6 +79,13 @@ void gobbo_vector_remove(GobboVector* v, size_t index, int* error);
 //be freed. To do this, call `gobbo_vector_get_and_remove()` then call `free(*dest)`. 
 void gobbo_vector_get_and_remove(GobboVector* v, void* dest, size_t index, int* error);
 
+//returns a pointer to an element, rather than the element itself. The lifetime of the
+//returned pointer will be invalidated as soon as any operation that changes the count of the 
+//GobboVector is performed. `*error` will be set to -1 on index out of bounds, and 0 on success.
+//Additionally the pointer returned will be NULL on error.
+//if `error == NULL`, will call `exit(EXIT_FAILURE)` on error.
+void* gobbo_vector_ptr_to_element(GobboVector* v, size_t index, int* error);
+
 //Frees the `v->data` pointer, and zero's out all the fields of `v`. 
 void gobbo_vector_free(GobboVector* v);
 
