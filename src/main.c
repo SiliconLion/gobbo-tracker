@@ -21,7 +21,10 @@ activate (GtkApplication* app,
 
     GtkWidget* main_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     gtk_container_add(GTK_CONTAINER(main_box), menu_container);
-    gtk_container_add(GTK_CONTAINER(main_box), fighter_container);
+    GtkWidget* fighter_container_scroll_wrpr = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(fighter_container_scroll_wrpr), fighter_container);
+
+    gtk_container_add(GTK_CONTAINER(main_box), fighter_container_scroll_wrpr);
 
     gtk_container_add(GTK_CONTAINER(window), main_box);
 
