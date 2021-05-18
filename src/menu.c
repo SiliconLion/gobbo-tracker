@@ -86,8 +86,6 @@ void gobbo_stat_entry_bttn_callback(GtkEntry* entry) {
 //the value of out_data will be set to the address of a GobboMenuData that is created with the box that
 //holds all the stats. 
 GtkWidget* gobbo_create_stats_menu(GtkContainer* fighter_container, GobboMenuData** out_data) {
-    GtkWidget* wrapper_container = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-
     GtkWidget* stats_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 
     GtkWidget* health_chkbx = gtk_check_button_new_with_label("Health");
@@ -111,6 +109,10 @@ GtkWidget* gobbo_create_stats_menu(GtkContainer* fighter_container, GobboMenuDat
         &location_of_true
     );
 
+    GtkWidget* stats_scroll_wrapper = gtk_scrolled_window_new(NULL, NULL);\
+    gtk_container_add(GTK_CONTAINER(stats_scroll_wrapper), stats_box);
+
+    //now make the input fields and buttons and that stuff
 
     GtkWidget* entry_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     GtkWidget* stat_entry = gtk_entry_new();
@@ -131,11 +133,14 @@ GtkWidget* gobbo_create_stats_menu(GtkContainer* fighter_container, GobboMenuDat
 
     gtk_container_add(GTK_CONTAINER(entry_box), stat_entry);
     gtk_container_add(GTK_CONTAINER(entry_box), stat_entry_bttn);
+
+
     
-    gtk_container_add(GTK_CONTAINER(wrapper_container), entry_box);
-    gtk_container_add(GTK_CONTAINER(wrapper_container), stats_box);
+    GtkWidget* wrapper_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_add(GTK_CONTAINER(wrapper_box), entry_box);
+    gtk_container_add(GTK_CONTAINER(wrapper_box), stats_scroll_wrapper);
     
-    return wrapper_container;
+    return wrapper_box;
 }
 
 GtkWidget* gobbo_create_menu(GtkContainer* fighter_container) {
