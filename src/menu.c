@@ -138,13 +138,13 @@ GtkWidget* gobbo_create_stats_menu(GtkContainer* fighter_container, GobboMenuDat
     
     GtkWidget* wrapper_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_container_add(GTK_CONTAINER(wrapper_box), entry_box);
-    gtk_container_add(GTK_CONTAINER(wrapper_box), stats_scroll_wrapper);
+    gtk_box_pack_end(GTK_BOX(wrapper_box), stats_scroll_wrapper, true, true, 10);
     
     return wrapper_box;
 }
 
 GtkWidget* gobbo_create_menu(GtkContainer* fighter_container) {
-    GtkWidget* menu_container = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    GtkWidget* menu_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 
     //see thoughts on the relavent code in gobbo_create_stats_menu
     GobboMenuData* stats_data;
@@ -153,8 +153,8 @@ GtkWidget* gobbo_create_menu(GtkContainer* fighter_container) {
     GtkWidget* add_fighter_bttn = gtk_button_new_with_label("Add Fighter");
     g_signal_connect_swapped(add_fighter_bttn, "clicked", G_CALLBACK(gobbo_add_fighter_callback), stats_data);
 
-    gtk_container_add(GTK_CONTAINER(menu_container), add_fighter_bttn);
-    gtk_container_add(GTK_CONTAINER(menu_container), stats_menu);
+    gtk_container_add(GTK_CONTAINER(menu_box), add_fighter_bttn);
+    gtk_box_pack_end(GTK_BOX(menu_box), stats_menu, true, true, 10);
 
-    return menu_container;
+    return menu_box;
 }

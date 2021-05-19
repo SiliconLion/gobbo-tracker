@@ -14,7 +14,7 @@ activate (GtkApplication* app,
 
     window = gtk_application_window_new (app);
     gtk_window_set_title (GTK_WINDOW (window), "Window");
-    gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
+    gtk_window_set_default_size (GTK_WINDOW (window), 600, 400);
 
     GtkWidget* fighter_container = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     GtkWidget* menu_container = gobbo_create_menu(GTK_CONTAINER(fighter_container));
@@ -24,7 +24,7 @@ activate (GtkApplication* app,
     GtkWidget* fighter_container_scroll_wrpr = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(fighter_container_scroll_wrpr), fighter_container);
 
-    gtk_container_add(GTK_CONTAINER(main_box), fighter_container_scroll_wrpr);
+    gtk_box_pack_end(GTK_BOX(main_box), fighter_container_scroll_wrpr, true, true, 10);
 
     gtk_container_add(GTK_CONTAINER(window), main_box);
 
